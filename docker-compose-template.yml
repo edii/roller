@@ -1,8 +1,8 @@
 version: '2'
 services:
   web:
-    magento:
-      context: ./docker/magento/src/
+    build:
+      context: ./docker/build/src/
       dockerfile: Dockerfile.yml
       args:
         - php=56 # (54|55|56|70)
@@ -21,6 +21,7 @@ services:
       - "2225:22"
       - "127.0.0.2:3306:13306"
     links:
+      - redis:redis
       - magento_db:mysql
     volumes:
       # system
@@ -36,6 +37,7 @@ services:
     extra_hosts:
       - "magento.dev:127.0.0.2"
     depends_on:
+      - redis
       - magento_db
     dns:
       - 8.8.8.8
@@ -103,3 +105,28 @@ services:
       - ./mysql/log/mysql.log:/var/log/mysqld.log
     environment:
       MYSQL_ROOT_PASSWORD: root
+
+  # others
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: magento_rabbit
+    ports:
+      - "127.0.0.2:5672:5672"
+      - "127.0.0.2:15672:15672"
+    volumes:
+      - ./rabbitmq/data:/var/lib/rabbitmq/mnesia
+      - ./rabbitmq/log:/var/log/rabbitmq
+    environment:
+      - HOSTNAME=rabbitmq
+#      - RABBITMQ_DEFAULT_VHOST=my_vhost
+
+  redis:
+    image: redis
+    container_name: magento_redis
+    volumes:
+      - ./docker/conf/redis.conf:/usr/local/etc/redis/redis.conf
+      - ./redis/data:/data
+    ports:
+      - "127.0.0.2:6379:6379"
+    command: ["redis-server","--appendonly yes"]
+#    command: ["redis-server", "/usr/local/etc/redis/redis.conf"] # this custom config

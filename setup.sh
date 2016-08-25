@@ -74,24 +74,12 @@ sed -e "s/${UID_VAR}/${UID_VALUE}/g" \
     < docker-compose-template.yml \
     > docker-compose.yml
 
-# Test if Composer is installed
-composer -v > /dev/null 2>&1
-COMPOSER_IS_INSTALLED=$?
-
 # install docker vendor
 if [ ! -d "docker" ]; then
     logger "Not used dir: docker."
     exit 1
 fi
 
-cd docker/
-if [ $COMPOSER_IS_INSTALLED -ne 0 ]; then
-    logger "Pleas install composer."
-    exit 1
-fi
-
-# RUN docker
-cd ../
 if [ ! -f "docker/build/src/Dockerfile.yml" ]; then
     logger "Canot install Dockerfile.yml"
     exit 1
