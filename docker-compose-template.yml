@@ -23,6 +23,7 @@ services:
     links:
       - redis:redis
       - magento_db:mysql
+      - rabbitmq:rabbitmq
     volumes:
       # system
       - ./:/var/www:rw
@@ -39,6 +40,7 @@ services:
     depends_on:
       - redis
       - magento_db
+      - rabbitmq
     dns:
       - 8.8.8.8
     environment:
@@ -118,7 +120,6 @@ services:
       - ./rabbitmq/log:/var/log/rabbitmq
     environment:
       - HOSTNAME=rabbitmq
-#      - RABBITMQ_DEFAULT_VHOST=my_vhost
 
   redis:
     image: redis
@@ -129,4 +130,3 @@ services:
     ports:
       - "127.0.0.2:6379:6379"
     command: ["redis-server","--appendonly yes"]
-#    command: ["redis-server", "/usr/local/etc/redis/redis.conf"] # this custom config
